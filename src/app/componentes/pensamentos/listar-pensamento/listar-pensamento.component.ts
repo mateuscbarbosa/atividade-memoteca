@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { Pensamento } from '../pensamento';
 import { PensamentoService } from '../pensamento.service';
 
@@ -9,7 +10,7 @@ import { PensamentoService } from '../pensamento.service';
 })
 export class ListarPensamentoComponent {
 
-  constructor(private service: PensamentoService) {}
+  constructor(private service: PensamentoService, private router: Router) {}
   paginaAtual: number = 1;
 
   haMaisPensamentos:boolean = true;
@@ -18,8 +19,12 @@ export class ListarPensamentoComponent {
 
   filtro:string = '';
 
+  favorito:boolean = false;
+
+  listaFavoritos: Pensamento[] = [];
+
   ngOnInit(): void {
-    this.service.listar(this.paginaAtual, this.filtro).subscribe((listaPensamentos) => {
+    this.service.listar(this.paginaAtual, this.filtro, this.favorito).subscribe((listaPensamentos) => {
       this.listaPensamentos = listaPensamentos
     })
   }
@@ -27,17 +32,38 @@ export class ListarPensamentoComponent {
   pesquisarPensamentos(){
     this.haMaisPensamentos = true;
     this.paginaAtual = 1;
-    this.service.listar(this.paginaAtual, this.filtro).subscribe(listapensamentos => {
+    this.service.listar(this.paginaAtual, this.filtro, this.favorito).subscribe(listapensamentos => {
       this.listaPensamentos = listapensamentos;
     })
   }
 
   carregarMaisPensamentos(){
-    this.service.listar(++this.paginaAtual, this.filtro).subscribe(listaPensamentos => {
+    this.service.listar(++this.paginaAtual, this.filtro, this.favorito).subscribe(listaPensamentos => {
       this.listaPensamentos.push(...listaPensamentos);
       if(!listaPensamentos.length){
         this.haMaisPensamentos = false;
       }
+    })
+  }
+
+  recarregarComponente(){
+    //location.reload();
+    this.favorito = false;
+    this.paginaAtual = 1;
+    
+    this.router.routeReuseStrategy.shouldReuseRoute= () => false;
+    this.router.onSameUrlNavigation = 'reload';
+    this.router.navigate([this.router.url]);
+  }
+
+  listarFavoritos(){
+    this.favorito = true;
+    this.haMaisPensamentos = true;
+    this.paginaAtual = 1;
+
+    this.service.listar(this.paginaAtual, this.filtro, this.favorito).subscribe(listadePensamentosFavoritos => {
+      this.listaPensamentos = listadePensamentosFavoritos;
+      this.listaFavoritos = listadePensamentosFavoritos;
     })
   }
 }
