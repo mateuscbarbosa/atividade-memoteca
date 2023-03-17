@@ -23,6 +23,8 @@ export class ListarPensamentoComponent {
 
   listaFavoritos: Pensamento[] = [];
 
+  titulo: string = 'Meu Mural'
+
   ngOnInit(): void {
     this.service.listar(this.paginaAtual, this.filtro, this.favorito).subscribe((listaPensamentos) => {
       this.listaPensamentos = listaPensamentos
@@ -50,13 +52,14 @@ export class ListarPensamentoComponent {
     //location.reload();
     this.favorito = false;
     this.paginaAtual = 1;
-    
+
     this.router.routeReuseStrategy.shouldReuseRoute= () => false;
     this.router.onSameUrlNavigation = 'reload';
     this.router.navigate([this.router.url]);
   }
 
   listarFavoritos(){
+    this.titulo = 'Meus Favoritos'
     this.favorito = true;
     this.haMaisPensamentos = true;
     this.paginaAtual = 1;
